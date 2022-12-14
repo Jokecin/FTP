@@ -54,10 +54,6 @@ def routefinder (a,b,T):
     bestprice = 9999
 
     for B in mapa:
-        startcheck = csv_reader[csv_reader['startingAirport'] == B]
-        endcheck = startcheck[startcheck['destinationAirport'] == fin]
-        datecheck = endcheck[endcheck['flightDate'] == today]
-
         fir = int(PriceCheck(a,B,today,rutas))
         today2 = today + timedelta(days=3)
         sec = int(PriceCheck(B,b,today2,rutas))
@@ -69,7 +65,16 @@ def routefinder (a,b,T):
                     bestprice = total
                     bestb = B
                 
-    print ('ruta alternativa: ',ini,'->',bestb,'->',fin,' | precio: ', bestprice)    
+    print ('ruta alternativa: ',ini,'->',bestb,'->',fin,' | precio: ', bestprice)   
+    
+    print('--------------------------------------')
+    resp = input('0.- ruta original || 1.- ruta alterna  ||  ')
+    print('--------------------------------------')
+
+    if resp != '1':
+        bestb = ''
+        
+    return(bestb) 
 
 def PriceCheck (a,b,d,r):
 
@@ -151,8 +156,7 @@ def precioiteracion(a,r):
             
         else: 
             total = total + int(PriceCheck(A,B,T,rutas))            
-            print ('viaje ',A,' -> ',B,' |Precio: ',PriceCheck(A,B,T,rutas),' |fecha salida: ',mejordia)
-            routefinder(A,B,mejordia)
+            # print ('viaje ',A,' -> ',B,' |Precio: ',PriceCheck(A,B,T,rutas),' |fecha salida: ',mejordia)
             T = mejordia + timedelta(days=diasmin)
             A = rutatemp[0]
             ruta2.append(B)
@@ -160,6 +164,75 @@ def precioiteracion(a,r):
 
     print ('precio total ruta : ',truncate(total,2))
     return(total)
+
+def precioiteracion2(a,r):
+
+    rutatemp = a
+    rutas = r
+    rutafinal = []
+
+    A = origen
+    B = rutatemp[0]
+    T = Finicio
+    total = 0
+
+    rutafinal.append(origen)
+    total = total + int(PriceCheck(A,B,T,rutas))
+    print ('viaje ',A,' -> ',B,' |Precio: ',PriceCheck(A,B,T,rutas),' |fecha salida: ',T)
+    rt = routefinder(A,B,T)
+
+    if rt != '':
+        rutafinal.append(rt)
+        T = T + timedelta(days=2)
+    
+    rutafinal.append(B)
+
+    A = rutatemp[0]
+    rutatemp.remove(B)  
+
+    T = T + timedelta(days=diasmin)
+
+    while len(rutatemp) > 0:
+
+        Tmax = T + timedelta(days=diasmax)
+        paso = 9999
+
+        B = rutatemp[0]
+        B1 = ''
+        rt = ''
+
+        while T <= Tmax:
+
+            price = int(PriceCheck(A,B,T,rutas))
+            
+            if price < paso and price > 0 :
+                mejordia = T
+                paso = price
+                B1 = B
+
+            T = T + timedelta(days=1)
+
+        if B1 == '':
+            print('ruta ',A,'->',B,'no posible dadas las fechas')
+            return (0)
+            
+        else: 
+            total = total + int(PriceCheck(A,B,T,rutas))            
+            print ('viaje ',A,' -> ',B,' |Precio: ',PriceCheck(A,B,T,rutas),' |fecha salida: ',mejordia)
+            rt = routefinder(A,B,mejordia)
+
+            if rt != '':
+                rutafinal.append(rt)
+                T = T + timedelta(days=2)
+            
+
+            T = mejordia + timedelta(days=diasmin)
+            A = rutatemp[0]
+            rutafinal.append(B)
+            rutatemp.remove(B) 
+
+    print ('precio total ruta : ',total,' USD')
+    return(rutafinal)
 
 #=======================================================================================================
 #=======================================================================================================
@@ -231,11 +304,11 @@ for B in mapaaux:
     if int(PriceCheck(A,B,T,rutas)) < paso:
         paso = int(PriceCheck(A,B,T,rutas))
         B1 = B
-
-total = total + PriceCheck(A,B1,T,rutas)        
+    
 ruta.append(B1)
 mapaaux.remove(B1)        
 print ('viaje ',A,' -> ',B1,' |Precio: ',PriceCheck(A,B1,T,rutas),' |fecha salida: ',Finicio)
+total = total + PriceCheck(A,B1,T,rutas)    
 
 T = T + timedelta(days=diasmin)
 
@@ -271,6 +344,9 @@ while len(mapaaux) > 0:
             print ('viaje ',A,' -> ',B1,' |Precio: ',PriceCheck(A,B1,T,rutas),' |fecha salida: ',mejordia)
             T = mejordia + timedelta(days=diasmin)
 
+print ('viaje ',B1,' -> ',origen,' |Precio: ',PriceCheck(A,B1,T,rutas),' |fecha salida: ',mejordia)     
+total = total + PriceCheck(B1,origen,T,rutas)       
+
 print ('precio total ruta base: ',truncate(total,2))
 
 print('======================================')
@@ -302,9 +378,9 @@ while iteracion < 20:
 
     for A in rutab:
         rutaux.append(A)    
+    rutaux.append(origen)    
 
     propuesta = precioiteracion(rutaux,rutas)
-    rutaux2 = rutab
 
     if propuesta < total:
         total = propuesta
@@ -323,13 +399,18 @@ while iteracion < 20:
     
     iteracion = iteracion+1    
 
-print('======================================')  
-print('======================================')  
+if rutaux2 == []:
+    rutaux2 = ruta    
+rutaux2.append(origen)
 
-print (rutaux2)
-print (mejorruta)
+print('======================================')  
+print(' mejor ruta: ',rutaux2)
+print('======================================')  
+fin = precioiteracion2(rutaux2,rutas)
+print('======================================')
+print(' ruta final: ',fin)
+print('======================================')
+print(' precio final: ',precioiteracion(fin,rutas),' USD')
+print('======================================')
 
-precioiteracion(rutaux2,rutas)
-print('======================================')
-print(' mejor ruta: ',total,' USD')
-print('======================================')
+
