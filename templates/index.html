@@ -5,6 +5,13 @@
 <!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
 <!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
 <!--[if gt IE 8]>      <html class="no-js"> <!--<![endif]-->
+<style>
+  .btn2{
+    border :5px;
+    padding:10px;
+    
+}
+</style>
 <html>
   <head>
     <meta charset="utf-8">
@@ -18,6 +25,7 @@
     <!--[if lt IE 7]>
       <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="#">upgrade your browser</a> to improve your experience.</p>
     <![endif]-->
+    <div class="container">
 <form action="/calculate" method="post">
 
     <div class="mb-3">
@@ -31,9 +39,14 @@
 
       <label for="exampleFormControlTextarea1" class="form-label">Aeropuertos a visitar</label>
       <textarea  class="form-control" id="visitar" name="visitar" rows="3"></textarea >
+        <div id="emailHelp" class="form-text">Ejemplo formato "BOS,IAD,PHL,MIA"</div>
+    </div>
+    <div class="mb-3">
+
+      <label for="exampleFormControlTextarea1" class="form-label">Aeropuerto final</label>
+      <input  class="form-control" id="Final" name="Final" rows="3"></input >
       
     </div>
-
     <div class="mb-3">
 
       <label for="exampleFormControlTextarea1" class="form-label">Dias min</label>
@@ -50,18 +63,14 @@
     </div>
     <div class="mb-3">
 
-      <label for="exampleFormControlTextarea1" class="form-label">Dia Inicio</label>
+      <label for="exampleFormControlTextarea1" class="form-label">Fecha Inicio</label>
       <input  class="form-control" id="inicio" name="inicio" rows="3"></input >
       
     </div>
-    <div class="mb-3">
-
-      <label for="exampleFormControlTextarea1" class="form-label">Destino final</label>
-      <input  class="form-control" id="Final" name="Final" rows="3"></input >
-      
-    </div>
-    <input type="submit" value="Submit">
-    <script src="" async defer></script>
+    
+    <input type="submit" value="Submit" class="btn2">
+    <script src="" async defer class="btn2"></script>
   </form>
   </body>
+</div>
 </html>

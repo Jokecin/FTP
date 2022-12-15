@@ -35,7 +35,7 @@ def routefinder (a,b,T):
     bestb = ''
     bestprice = 9999
 
-    for B in mapa:
+    for B in mapalt:
         fir = int(PriceCheck(a,B,today,rutas))
         today2 = today + timedelta(days=3)
         sec = int(PriceCheck(B,b,today2,rutas))
@@ -181,8 +181,8 @@ def precioiteracion(a,r,t,i):
     return(total)
 
 def precioiteracion2(a,r):
-
-    rutatemp = a
+    pr=[]
+    rutatem = a
     rutas = r
     rutafinal = []
     #rutatemp.remove(Final)
@@ -195,9 +195,11 @@ def precioiteracion2(a,r):
     rutafinal.append(origen)
     total = total + int(PriceCheck(A,B,T,rutas))
     print ('viaje ',A,' -> ',B,' |Precio: ',PriceCheck(A,B,T,rutas),' |fecha salida: ',T)
+    pr.append(('viaje %s -> %s |Precio: %s|fecha salida: %s')%(A,B,PriceCheck(A,B,T,rutas),T))
+    
     rt = routefinder(A,B,T)
 
-    if rt != '':
+    '''if rt != '':
 
         rutafinal.append(rt)
         T = T + timedelta(days=2)
@@ -207,21 +209,21 @@ def precioiteracion2(a,r):
         rutatemp = []
         rutatemp.append(B)
         for I in temp:
-            rutatemp.append(I)
+            rutatemp.append(I)'''
     
     rutafinal.append(B)
 
-    A = rutatemp[0]
-    rutatemp.remove(B)  
+    A = rutatem[0]
+    rutatem.remove(B)  
 
     T = T + timedelta(days=diasmin)
 
-    while len(rutatemp) > 0:
+    while len(rutatem) > 0:
 
         Tmax = T + timedelta(days=diasmax)
         paso = 9999
 
-        B = rutatemp[0]
+        B = rutatem[0]
         B1 = ''
         rt = ''
 
@@ -243,9 +245,10 @@ def precioiteracion2(a,r):
         else: 
             total = total + int(PriceCheck(A,B,T,rutas))            
             print ('viaje ',A,' -> ',B,' |Precio: ',PriceCheck(A,B,T,rutas),' |fecha salida: ',mejordia)
+            pr.append(('viaje %s -> %s |Precio: %s|fecha salida: %s')%(A,B,PriceCheck(A,B,T,rutas),mejordia))
             rt = routefinder(A,B,mejordia)
 
-            if rt != '':
+            '''if rt != '':
                 
                 rutafinal.append(rt)
                 T = T + timedelta(days=2)
@@ -258,20 +261,20 @@ def precioiteracion2(a,r):
                     for I in temp:
                         rutatemp.append(I)
                 else:
-                    rutatemp.append(B)
+                    rutatemp.append(B)'''
                 
 
             T = mejordia + timedelta(days=diasmin)
-            A = rutatemp[0]
+            A = rutatem[0]
             rutafinal.append(B)
-            rutatemp.remove(B) 
+            rutatem.remove(B) 
     rutafinal.append(Final)
 
     # print ('precio total ruta : ',total,' USD')
     return(rutafinal)
 
 def precioiteracionprint(a,r,t,i):
-
+    prin=[]
     rutatemp = a
     rutas = r
     T = t
@@ -303,13 +306,13 @@ def precioiteracionprint(a,r,t,i):
             
         else: 
             total = total + int(PriceCheck(A,B,T,rutas))            
-            print ('viaje ',A,' -> ',B,' |Precio: ',PriceCheck(A,B,T,rutas),' |fecha salida: ',mejordia)
+            prin.append(('viaje %s -> %s |Precio: %s |fecha salida: %s')%(A,B,PriceCheck(A,B,T,rutas),mejordia))
             T = mejordia + timedelta(days=diasmin)
             rutatemp.remove(A) 
 
     print('======================================')
     print ('precio total ruta : ',truncate(total,2),' USD')
-    return(total)
+    return(total,prin)
 
 def iteracion (ruta,T,I):
 
@@ -400,6 +403,8 @@ with open('itineraries.csv', 'r') as csv_file:
     for data in csv_reader.destinationAirport:
         if data not in mapa:
             mapa.append(data)
+mapalt=mapa
+
 rutas=csv_reader
 print('======================================')
 print('CSV cargado')
@@ -583,12 +588,20 @@ def calculate():
     globals()['B']=''
     globals()['A']=''
     globals()['T']=''
+    globals()['total']=0
+    
+    
     Final = request.form['Final']
     dias=15
     origen=request.form['origen']
     Nodos=str(request.form['visitar'])
     Nodos=Nodos.split(sep=',')
     nodosf=[origen]+Nodos
+    mapalt.remove(origen)    
+    mapalt.remove(Final)
+    for i in Nodos:
+        mapalt.remove(i)
+
     diasmin=int(request.form['diasmin'])
     diasmax=int(request.form['diasmax'])
     inicio=request.form['inicio']
@@ -598,7 +611,14 @@ def calculate():
     print(arr)
     
     globals()["rutatemp"]=arr
-    return render_template('mejorruta.html',arr=arr,mejor=mejor,ultimo=ultimo,origen=origen)
+
+    rutac=[origen]+arr+[ultimo]
+
+    #precioiteracion2(arr,csv_reader)
+
+
+    t,prin=precioiteracionprint(rutac,csv_reader,Finicio,origen)
+    return render_template('mejorruta.html',arr=prin,mejor=t,ultimo=ultimo,origen=origen)
 @app.route('/sugerencias',methods=["GET", "POST"])
 def sugerencia():
     #rutatemp.remove(Final)
@@ -609,7 +629,7 @@ def sugerencia():
     total = 0
 
     rutafinal.append(origen)
-    total = total + int(PriceCheck(A,B,T,rutas))
+    globals()['total'] = globals()['total'] + int(PriceCheck(A,B,T,rutas))
     viajeoriginal=('viaje %s -> %s |Precio: %s |fecha salida: %s')%(A,B,PriceCheck(A,B,T,rutas),T)
     imp = printroutefinder(A,B,T)
 
@@ -621,6 +641,7 @@ def sugerencia():
 @app.route('/sugerencia/<bool>',methods=["GET", "POST"])
 def cambio(bool):
     if int(bool) == 1:
+        mapalt.remove(rt)
         rt=routefinder(A,B,globals()['T'])
         rutafinal.append(rt)
         globals()['T'] = globals()['T'] + timedelta(days=2)
@@ -643,6 +664,7 @@ def cambio(bool):
 @app.route('/sugerencia2/<bool>',methods=["GET", "POST"])
 def cambio2(bool):
     if bool == '1':
+        mapalt.remove(rt)
         rt=routefinder(A,B,globals()['T'])
         rutafinal.append(rt)
         globals()['T'] = globals()['T'] + timedelta(days=2)
@@ -693,74 +715,14 @@ def sugerencia2():
             error=('ruta %s->%sno posible dadas las fechas')%(A,B)
             return (error)
         else: 
-            globals()['total'] = total + int(PriceCheck(A,B,T,rutas))            
+            globals()['total'] = globals()['total'] + int(PriceCheck(A,B,T,rutas))            
             rutaorig=('viaje %s -> %s |Precio: %s |fecha salida: %s')%(A,B,PriceCheck(A,B,T,rutas),mejordia)
             rt = printroutefinder(A,B,mejordia)
             return render_template('suge2.html',viajeoriginal=rutaorig,imp=rt)
     else:
         rutafinal.append(Final)
-        return rutafinal
-'''while len(rutatemp) > 0:
-
-        Tmax = T + timedelta(days=diasmax)
-        paso = 9999
-
-        B = rutatemp[0]
-        B1 = ''
-        rt = ''
-
-        while T <= Tmax:
-
-            price = int(PriceCheck(A,B,T,rutas))
-            
-            if price < paso and price > 0 :
-                mejordia = T
-                paso = price
-                B1 = B
-
-            T = T + timedelta(days=1)
-
-        if B1 == '':
-            print('ruta ',A,'->',B,'no posible dadas las fechas')
-            return (0)
-            
-        else: 
-            total = total + int(PriceCheck(A,B,T,rutas))            
-            print ('viaje ',A,' -> ',B,' |Precio: ',PriceCheck(A,B,T,rutas),' |fecha salida: ',mejordia)
-            rt = routefinder(A,B,mejordia)
-
-            if rt != '':
-                
-                rutafinal.append(rt)
-                T = T + timedelta(days=2)
-
-                rutatemp.remove(B)
-                if rutatemp != []:
-                    temp = iteracion(rutatemp,T,B)
-                    rutatemp = []
-                    rutatemp.append(B)
-                    for I in temp:
-                        rutatemp.append(I)
-                else:
-                    rutatemp.append(B)
-                
-
-            T = mejordia + timedelta(days=diasmin)
-            A = rutatemp[0]
-            rutafinal.append(B)
-            rutatemp.remove(B) 
-    rutafinal.append(Final)
-
-    # print ('precio total ruta : ',total,' USD')
-    return(rutafinal)'''
-
-
-
-
-
-
-
-
+        t,print=precioiteracionprint(rutafinal,csv_reader,Finicio,origen)
+        return render_template("rutafinal.html",rutafinal=rutafinal,total=t,print=print)
 
 
 

@@ -5,8 +5,17 @@
 <!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
 <!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
 <!--[if gt IE 8]>      <html class="no-js"> <!--<![endif]-->
+
+<style>
+    .btn2{
+      border :5px;
+      padding:10px;
+      
+  }
+  </style>
 <html>
   <head>
+    
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title></title>
@@ -15,17 +24,17 @@
     <link rel="stylesheet" href="">
   </head>
   <body>
+<div class="container">
     <h3>Mejor ruta obtenida</h3>
-    {{origen}}->
     {%- for a in arr %}
-    {{a}}->
+    <p>{{a}}</p>
     {% endfor %}
-    {{ultimo}}
     <p></p>
     <p>Costo total:{{mejor}}</p>
     <p>Desea recibir alguna sugerencia</p>
-    <form action="/sugerencias" method="post">
-    <button name="button">Si</button>
+    <form action="/sugerencias" method="post" class="btn2">
+    <button name="button" class="btn2">Si</button>
     </form>
+</div>
   </body>
 </html>

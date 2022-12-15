@@ -5,6 +5,23 @@
 <!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
 <!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
 <!--[if gt IE 8]>      <html class="no-js"> <!--<![endif]-->
+<style>
+    .contenedor{
+        display:flex;
+        justify-content:center;
+        padding:35px;
+    }
+    .btn1{
+        border :5px;
+        padding:10px;
+        margin-right:10px;
+    }
+    .btn2{
+        border :5px;
+        padding:10px;
+        
+    }
+</style>
 <html>
   <head>
     <meta charset="utf-8">
@@ -15,19 +32,21 @@
     <link rel="stylesheet" href="">
   </head>
   <body>
+    <div class="container">
     
-    
-    <p>ruta original</p>
+    <p>Ruta original</p>
     <p>{{viajeoriginal}}</p>
-    <p>ruta alternativa</p>
+    <p>Ruta alternativa</p>
     <p>{{imp}}</p>
-    
-    <form action="/sugerencia2/0" method="post">
-    <button name="button">mantener ruta original</button>
+<div class="contenedor">
+    <form action="/sugerencia2/0" method="post" class="btn1">
+    <button name="button" class="btn1">mantener ruta original</button>
     </form>
 
-    <form action="/sugerencia2/1" method="post">
-    <button name="button">tomar ruta alternativa</button>
+    <form action="/sugerencia2/1" method="post" class="btn2">
+    <button name="button" class="btn2">tomar ruta alternativa</button>
     </form>
+</div>
+</div>
   </body>
 </html>
