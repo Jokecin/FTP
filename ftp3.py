@@ -9,7 +9,7 @@ dias = 15
 diasmin = 3
 diasmax = 3
 
-Nodos = ['ATL','BOS','IAD','PHL','MIA']
+Nodos = ['BOS','IAD','PHL','MIA']
 origen = 'ATL'
 Final = 'EWR'
 inicio = '2022-04-26'
@@ -35,7 +35,8 @@ def routefinder (a,b,T):
     bestb = ''
     bestprice = 9999
 
-    for B in mapa:
+    for B in mapalt:
+
         fir = int(PriceCheck(a,B,today,rutas))
         today2 = today + timedelta(days=3)
         sec = int(PriceCheck(B,b,today2,rutas))
@@ -166,6 +167,7 @@ def precioiteracion2(a,r):
 
     if rt != '':
 
+        mapalt.remove(rt)
         rutafinal.append(rt)
         T = T + timedelta(days=2)
 
@@ -214,6 +216,7 @@ def precioiteracion2(a,r):
 
             if rt != '':
                 
+                mapalt.remove(rt)
                 rutafinal.append(rt)
                 T = T + timedelta(days=2)
 
@@ -337,7 +340,8 @@ print('Inicio Programa')
 print('======================================')
 
 with open('itineraries.csv', 'r') as csv_file:
-    csv_reader = pd.read_csv(csv_file, nrows= 1000000)
+    # csv_reader = pd.read_csv(csv_file, nrows= 1000000)
+    csv_reader = pd.read_csv(csv_file)
 
     csv_reader.pop('legId')
     csv_reader.pop('searchDate')
@@ -367,6 +371,14 @@ with open('itineraries.csv', 'r') as csv_file:
         if data not in mapa:
             mapa.append(data)
 
+mapalt = mapa
+mapalt.remove(origen)    
+mapalt.remove(Final)
+
+for i in Nodos:
+    mapalt.remove(i)
+
+print (mapalt)
 print('======================================')
 print('CSV cargado')
 print('======================================')
@@ -375,7 +387,6 @@ print('======================================')
 rutas = csv_reader
        
 mapaaux = Nodos
-mapaaux.remove(origen)
 
 B1 = origen
 total = 0
@@ -412,10 +423,10 @@ while len(mapaaux) > 0:
 
     Tmax = T + timedelta(days=diasmax)
     paso = 9999
-    A = B1
 
     for B in mapaaux:
 
+        A = B1
         B1 = ''
 
         while T <= Tmax:
@@ -426,7 +437,6 @@ while len(mapaaux) > 0:
                 mejordia = T
                 paso = price
                 B1 = B
-
             T = T + timedelta(days=1)
 
         if B1 == '':
@@ -440,7 +450,20 @@ while len(mapaaux) > 0:
             print ('viaje ',A,' -> ',B1,' |Precio: ',PriceCheck(A,B1,T,rutas),' |fecha salida: ',mejordia)
             T = mejordia + timedelta(days=diasmin)
 
-print ('viaje ',B1,' -> ',Final,' |Precio: ',PriceCheck(A,B1,T,rutas),' |fecha salida: ',mejordia)     
+T = T + timedelta(days=diasmin)
+
+while T <= Tmax:
+
+    price = int(PriceCheck(B1,Final,T,rutas))
+    
+    if price < paso and price > 0 :
+        mejordia = T
+        paso = price
+        B1 = B
+        print(B1)   
+    T = T + timedelta(days=1)      
+
+print ('viaje ',B1,' -> ',Final,' |Precio: ',PriceCheck(B1,Final,T,rutas),' |fecha salida: ',T)     
 total = total + PriceCheck(B1,Final,T,rutas)       
 
 print ('precio total ruta base: ',truncate(total,2))
