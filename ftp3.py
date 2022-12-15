@@ -340,8 +340,7 @@ print('Inicio Programa')
 print('======================================')
 
 with open('itineraries.csv', 'r') as csv_file:
-    # csv_reader = pd.read_csv(csv_file, nrows= 1000000)
-    csv_reader = pd.read_csv(csv_file)
+    csv_reader = pd.read_csv(csv_file, nrows= 1000000)
 
     csv_reader.pop('legId')
     csv_reader.pop('searchDate')
