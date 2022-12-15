@@ -664,8 +664,9 @@ def cambio(bool):
 @app.route('/sugerencia2/<bool>',methods=["GET", "POST"])
 def cambio2(bool):
     if bool == '1':
-        mapalt.remove(rt)
+        
         rt=routefinder(A,B,globals()['T'])
+        mapalt.remove(rt)
         rutafinal.append(rt)
         globals()['T'] = globals()['T'] + timedelta(days=2)
         rutatemp.remove(B)
