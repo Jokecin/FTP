@@ -403,7 +403,7 @@ with open('itineraries.csv', 'r') as csv_file:
     for data in csv_reader.destinationAirport:
         if data not in mapa:
             mapa.append(data)
-mapalt=mapa
+
 
 rutas=csv_reader
 print('======================================')
@@ -571,6 +571,8 @@ Final = 'EWR'
 #Finicio = datetime.strptime(inicio, "%Y-%m-%d")
 
 #calcularmejorruta(csv_reader,Nodos,origen,Finicio,diasmin,diasmax,Final,dias)
+
+
 rutatemp=[]
 rutafinal=[]
 app = Flask(__name__)
@@ -578,11 +580,15 @@ B=''
 A=''
 T=''
 total=0
+mapalt=[]
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('index.html',mapa=mapa)
 @app.route('/calculate/',methods=["GET", "POST"])
 def calculate():
+    globals()['mapalt']=[]
+    for i in mapa:
+        mapalt.append(i)
     globals()['rutatemp']=[]
     globals()['rutafinal']=[]
     globals()['B']=''
@@ -590,18 +596,18 @@ def calculate():
     globals()['T']=''
     globals()['total']=0
     
-    
     Final = request.form['Final']
     dias=15
     origen=request.form['origen']
     Nodos=str(request.form['visitar'])
     Nodos=Nodos.split(sep=',')
     nodosf=[origen]+Nodos
-    mapalt.remove(origen)    
+    
+    mapalt.remove(origen)
     mapalt.remove(Final)
     for i in Nodos:
         mapalt.remove(i)
-
+    print(mapa,'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
     diasmin=int(request.form['diasmin'])
     diasmax=int(request.form['diasmax'])
     inicio=request.form['inicio']
@@ -616,7 +622,7 @@ def calculate():
 
     #precioiteracion2(arr,csv_reader)
 
-
+    globals()['mapalt']=mapalt
     t,prin=precioiteracionprint(rutac,csv_reader,Finicio,origen)
     return render_template('mejorruta.html',arr=prin,mejor=t,ultimo=ultimo,origen=origen)
 @app.route('/sugerencias',methods=["GET", "POST"])
